@@ -27,3 +27,4 @@ jobs:
         context: .
         push: true
         tags: karelnagel/whisper-lambda:latest
+        platforms: linux/amd64,linux/arm64
