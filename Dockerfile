@@ -8,16 +8,21 @@ ADD src src
 
 RUN apt-get update
 RUN apt-get install -y  cmake libclang-dev
-RUN cargo install cargo-lambda 
 
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=/home/root/app/target \
-    rustup target add aarch64-unknown-linux-gnu && \
-    cargo lambda build --release --target aarch64-unknown-linux-gnu --compiler cargo
+    cargo build --release 
 
-RUN ls /build/target/lambda/whisper
+RUN ls /build/target/release
 
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023
-COPY --from=builder /build/target/lambda/whisper/bootstrap /bootstrap
 
-ENTRYPOINT ["/bootstrap"]
+COPY --from=builder /build/target/release/whisper /var/task/whisper
+
+# Create the bootstrap script
+RUN mkdir -p /var/runtime && \
+    echo '#!/bin/sh' > /var/runtime/bootstrap && \
+    echo 'exec /var/task/whisper' >> /var/runtime/bootstrap && \
+    chmod +x /var/runtime/bootstrap
+
+ENTRYPOINT ["/var/runtime/bootstrap"]
