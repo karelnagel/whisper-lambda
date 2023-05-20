@@ -1,4 +1,4 @@
-FROM rust:1.67 as builder
+FROM rust:1.67-slim as builder
 
 WORKDIR /build
 
@@ -6,14 +6,14 @@ ADD Cargo.toml Cargo.toml
 ADD Cargo.lock Cargo.lock
 ADD src src
 
-RUN apt-get update
-RUN apt-get install -y  cmake libclang-dev
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends cmake make g++ libclang-dev libfindbin-libs-perl  && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=/home/root/app/target \
     cargo build --release 
 
-RUN ls /build/target/release
 
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023
 
