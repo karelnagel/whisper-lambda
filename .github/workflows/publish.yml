@@ -20,10 +20,16 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-    - name: Build and push Docker image
+    - name: x86_64
       uses: docker/build-push-action@v2
       with:
         context: .
         push: true
-        tags: karelnagel/whisper-lambda:latest
+        tags:  karelnagel/whisper-lambda:x86_64-latest 
+    - name: aarch64
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags:  karelnagel/whisper-lambda:arm64-latest 
+        platforms: linux/arm64
